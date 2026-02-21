@@ -1,6 +1,6 @@
 services:
   grafana:
-    image: grafana/grafana-oss:${GRAFANA_TAG:-11.5.0}
+    image: grafana/grafana-oss:${GRAFANA_TAG}
     container_name: grafana
     hostname: grafana
     restart: unless-stopped
@@ -17,6 +17,7 @@ services:
       - traefik.http.routers.grafana.entrypoints=websecure
       - traefik.http.routers.grafana.tls.certresolver=myresolver
       - traefik.http.services.grafana.loadbalancer.server.port=3000
+      - traefik.http.routers.grafana.middlewares=auth
 
 networks:
   control-plane:

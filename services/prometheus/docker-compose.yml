@@ -1,6 +1,6 @@
 services:
   prometheus:
-    image: prom/prometheus:${PROMETHEUS_TAG:-v3.1.0}
+    image: prom/prometheus:${PROMETHEUS_TAG}
     container_name: prometheus
     hostname: prometheus
     restart: unless-stopped
@@ -17,6 +17,7 @@ services:
       - traefik.http.routers.prometheus.entrypoints=websecure
       - traefik.http.routers.prometheus.tls.certresolver=myresolver
       - traefik.http.services.prometheus.loadbalancer.server.port=9090
+      - traefik.http.routers.prometheus.middlewares=auth
 
 networks:
   control-plane:

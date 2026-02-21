@@ -32,7 +32,7 @@ variables:
     - echo "--- Deploying Service:${SERVICE_NAME} ---"
     - SERVICE_ROOT="services/${SERVICE_NAME}"
     - REMOTE_PATH="${DEPLOY_DIR}/services/${SERVICE_NAME}"
-    - ENV_FILE="${SERVICE_ROOT}/env.sample"
+    - ENV_FILE="${SERVICE_ROOT}/.env.template"
     - LOCAL_DOTENV="${SERVICE_ROOT}/.env"
     
     - |
@@ -44,10 +44,14 @@ variables:
     - echo "Generating .env from template..."
     - envsubst < "${ENV_FILE}" > "${LOCAL_DOTENV}"
     
-    - echo "Updating remote repository..."
+    - echo "Updating remote repository with retry logic..."
     - |
       ssh -p "${SSH_PORT}" "${SSH_USER}@${CONTROLLER}" \
-        "cd ${DEPLOY_DIR} && git pull"
+        "cd ${DEPLOY_DIR} && \
+         for i in {1..5}; do \
+           git fetch --all && git reset --hard origin/${CI_COMMIT_BRANCH} && git pull && break || \
+           echo 'Git lock failed, retrying in 5s...' && sleep 5; \
+         done"
     
     - echo "Uploading configuration..."
     - scp -P "${SSH_PORT}" "${LOCAL_DOTENV}" "${SSH_USER}@${CONTROLLER}:${REMOTE_PATH}/.env"

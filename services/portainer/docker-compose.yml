@@ -1,6 +1,6 @@
 services:
   portainer:
-    image: portainer/portainer-ce:${PORTAINER_TAG:-2.33.6}
+    image: portainer/portainer-ce:${PORTAINER_TAG}
     container_name: portainer
     hostname: portainer
     restart: unless-stopped
@@ -19,6 +19,7 @@ services:
       - traefik.http.routers.portainer.entrypoints=websecure
       - traefik.http.routers.portainer.tls.certresolver=myresolver
       - traefik.http.services.portainer.loadbalancer.server.port=9000
+      - traefik.http.routers.portainer.middlewares=auth
 
 networks:
   control-plane:
